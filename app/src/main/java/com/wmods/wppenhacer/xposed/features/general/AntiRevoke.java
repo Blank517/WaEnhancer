@@ -186,7 +186,7 @@ public class AntiRevoke extends Feature {
                 dateTextView.setText(newTextData);
             } else if (antirevokeValue == 2) {
                 // Icon
-                var icon = DesignUtils.getDrawableByName("msg_status_client_revoked");
+                var icon = DesignUtils.getDrawableByName("ic_block_small");
                 var drawable = scaleImage(Utils.getApplication().getResources(), icon, 0.7f);
                 drawable.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP));
                 dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
