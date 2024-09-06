@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -69,7 +71,7 @@ public class AntiRevoke extends Feature {
                 var fMessage = new FMessageWpp(param.args[0]);
                 var messageKey = fMessage.getKey();
                 var deviceJid = fMessage.getDeviceJid();
-                var id = fMessage.getRowId();
+                //var id = fMessage.getRowId();
                 var messageID = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
                 // Caso o proprio usuario tenha deletado o status
                 if (WppCore.getPrivBoolean(messageID + "_delpass", false)) {
@@ -162,7 +164,6 @@ public class AntiRevoke extends Feature {
         return messages;
     }
 
-
     private void isMRevoked(Object objMessage, TextView dateTextView, String antirevokeType) {
         if (dateTextView == null) return;
         var fMessage = new FMessageWpp(objMessage);
@@ -186,11 +187,22 @@ public class AntiRevoke extends Feature {
                 dateTextView.setText(newTextData);
             } else if (antirevokeValue == 2) {
                 // Icon
-                var icon = DesignUtils.getDrawableByName("ic_block_small");
-                var drawable = scaleImage(Utils.getApplication().getResources(), icon, 0.7f);
-                drawable.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP));
-                dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-                dateTextView.setCompoundDrawablePadding(5);
+                var app = Utils.getApplication();
+                var packageManager = app.getPackageManager();
+                try {
+                    Drawable icon;
+                    PackageInfo packageInfo = packageManager.getPackageInfo(app.getPackageName(), 0);
+                    if (packageInfo.versionName.startsWith("2.24.17")) {
+                        icon = DesignUtils.getDrawableByName("ic_block_small");
+                    }
+                    else {
+                        icon = DesignUtils.getDrawableByName("msg_status_client_revoked");
+                    }
+                    var drawable = scaleImage(Utils.getApplication().getResources(), icon, 0.7f);
+                    drawable.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP));
+                    dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
+                    dateTextView.setCompoundDrawablePadding(5);
+                } catch (PackageManager.NameNotFoundException ignored) {}
             }
         } else {
             dateTextView.setCompoundDrawables(null, null, null, null);
